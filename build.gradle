@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+group = 'de.beit.jee'
+version = 1.5
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.jboss.resteasy', name: 'resteasy-client', version:'3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version:'3.0.19.Final'
+    compile group: 'org.glassfish', name: 'javax.json', version: '1.0.4'
+    compileOnly group: 'javax', name: 'javaee-api', version: '6.0'
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': 'REST Client',  
+            'Implementation-Version': version
+        )
+    }
+}
