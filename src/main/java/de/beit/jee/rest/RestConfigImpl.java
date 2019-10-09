@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import javax.ejb.Singleton;
+import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
  * @author Markus Pauer <mpauer@beit.de>
  */
 @Service
+@Named
 @Singleton
 public class RestConfigImpl implements RestConfig {
     

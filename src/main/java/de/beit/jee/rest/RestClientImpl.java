@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.inject.Named;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
  * @author Markus Pauer <mpauer@beit.de>
  */
 @Service
+@Named
 @Stateless
 public class RestClientImpl implements RestClient {
     
