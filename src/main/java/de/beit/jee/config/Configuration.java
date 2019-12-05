@@ -21,21 +21,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.Singleton;
-import javax.ejb.Schedule;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
  * This Configuration Class gives you access to the central Property-Files.
- * <p>To use this Configuration simply inject this Singleton into the Enterprise Java Bean.
- * If a property file has changed, it will be automatically reloaded.</p>
- * 
+ * <p>
+ * To use this Configuration simply inject this Singleton into the Enterprise
+ * Java Bean. If a property file has changed, it will be automatically
+ * reloaded.</p>
+ *
  * @author Markus Pauer
  */
 @Singleton
@@ -43,68 +42,49 @@ import javax.enterprise.context.ApplicationScoped;
 public class Configuration {
 
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
-    
-    @Resource(lookup = "java:global/configurationFilename")
-    private String configurationFilename;
-    
-    @Resource(lookup = "java:global/passwordFilename")
-    private String passwordFilename;
-    
-    private long timestamp = 0;
-    private long ptimestamp = 0;
+
+    private static final String SECRETS = "SECRETS";
+    private static final String CONFIG = "CONFIG";
+
     private final Properties configuration;
     private final Properties secrets;
-    private final Calendar calendar;
     private String basePath;
 
     public Configuration() {
         this.configuration = new Properties();
         this.secrets = new Properties();
-        this.calendar = Calendar.getInstance();
     }
-    
-    @Schedule(hour = "*", minute = "*/1", second = "0", persistent = false)
+
     @PostConstruct
     private final void init() {
-        calendar.setTimeInMillis(timestamp);
-        File configFile = new File(configurationFilename);
+        File configFile = new File(System.getenv(CONFIG));
         basePath = configFile.getParent();
-        if (timestamp == 0 || timestamp < configFile.lastModified()) {
-            calendar.setTimeInMillis(configFile.lastModified());
-            LOGGER.log(Level.FINE, "Config-File has changed: {0} reloading", calendar.getTime());
-            try {
-                configuration.load(new FileReader(configFile));
-            } catch (FileNotFoundException ex) {
-                LOGGER.log(Level.SEVERE, "Config-File not found: {0}", ex.getLocalizedMessage());
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Config-File not loaded: {0}", ex.getLocalizedMessage());
-            }
-            LOGGER.log(Level.FINE, "Config-File loaded: {0} entries found", configuration.size());
-            timestamp = configFile.lastModified();
+        try {
+            configuration.load(new FileReader(configFile));
+        } catch (FileNotFoundException ex) {
+            LOGGER.log(Level.SEVERE, "Config-File not found: {0}", ex.getLocalizedMessage());
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Config-File not loaded: {0}", ex.getLocalizedMessage());
         }
-        calendar.setTimeInMillis(ptimestamp);
-        File passwordFile = new File(passwordFilename);
-        if (ptimestamp == 0 || ptimestamp < passwordFile.lastModified()) {
-            calendar.setTimeInMillis(passwordFile.lastModified());
-            LOGGER.log(Level.FINE, "Password-File has changed: {0} reloading", calendar.getTime());
-            try {
-                secrets.load(new FileReader(passwordFile));
-            } catch (FileNotFoundException ex) {
-                LOGGER.log(Level.SEVERE, "Password-File not found: {0}", ex.getLocalizedMessage());
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Password-File not loaded: {0}", ex.getLocalizedMessage());
-            }
-            LOGGER.log(Level.FINE, "Password-File loaded: {0} entries found", configuration.size());
-            ptimestamp = passwordFile.lastModified();
+        LOGGER.log(Level.FINE, "Config-File loaded: {0} entries found", configuration.size());
+
+        File passwordFile = new File(System.getenv(SECRETS));
+        try {
+            secrets.load(new FileReader(passwordFile));
+        } catch (FileNotFoundException ex) {
+            LOGGER.log(Level.SEVERE, "Password-File not found: {0}", ex.getLocalizedMessage());
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Password-File not loaded: {0}", ex.getLocalizedMessage());
         }
+        LOGGER.log(Level.FINE, "Password-File loaded: {0} entries found", configuration.size());
     }
-    
+
     /**
      * Get the Property with the given key.
-     * 
+     *
      * @param name - key of the Property
      * @return value of the Property
-     * @throws PropertyNotFoundException 
+     * @throws PropertyNotFoundException
      */
     public String getProperty(String name) throws PropertyNotFoundException {
         String property;
@@ -117,13 +97,13 @@ public class Configuration {
         }
         return property;
     }
-    
+
     /**
      * Read the Content of a JSON-based Property-File completely.
-     * 
+     *
      * @param name - name of the Property-File
      * @return JSON-structure
-     * @throws PropertyNotFoundException 
+     * @throws PropertyNotFoundException
      */
     public String getContent(String name) throws PropertyNotFoundException {
         StringBuilder content = new StringBuilder();
@@ -141,5 +121,5 @@ public class Configuration {
         }
         return content.toString();
     }
-    
+
 }
