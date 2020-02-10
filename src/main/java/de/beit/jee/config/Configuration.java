@@ -56,7 +56,7 @@ public class Configuration {
     }
 
     @PostConstruct
-    private final void init() {
+    public final void init() {
         File configFile = new File(System.getenv(CONFIG));
         basePath = configFile.getParent();
         try {
